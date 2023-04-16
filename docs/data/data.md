@@ -8,89 +8,75 @@
 ```plantuml
 @startuml
 ' Логическая модель данных в варианте UML Class Diagram (альтернатива ER-диаграмме).
-namespace ShoppingCart {
+namespace Accounts {
+    class Accounts {
+        accounts : Account[]
+    }
 
- class ShoppingCart
- {
-  id : string
-  createDate : datetime
-  updateDate : datetime
-  customer : Customer
-  price : ShoppingCartPrice
-  cartItems : CartItem[]
- }
+    class Account {
+        login : string
+        password : string
+        name : string
+        role : Role
+    }
 
- class ShoppingCartPrice
- {
-  type : CartItemPrice
- }
- class CartItemPrice
- {
-  type : CartItemPriceType
- }
+    enum Role {
+        administrator
+        speaker
+        customer
+        guest
+    }
 
- enum CartPriceType
- {
-  total
-  grandTotal
-  offeringDiscount
-  couponsDiscount
- }
-
- class CartItem
- {
-  id : string
-  quantity : int
-  offering : Offering
-  relationship : CartItemRelationShip[]
-  price : CartItemPrice[]
-  status : CartItemStatus
- }
-
-  class Customer
- {
-  id : string
- }
- 
- class Offering
- {
-  id : string
-  isQuantifiable : boolean
-  actionType : OfferingActionType
-  validFor : ValidFor
- }
-  
- class ProductSpecificationRef
- {
-  id : string
- }
- 
- ShoppingCart *-- "1..*" ShoppingCartPrice
- ShoppingCartPrice -- CartPriceType
- ShoppingCart *-- "*" CartItem
- CartItem *-- "*" CartItemPrice
- CartItemPrice -- CartPriceType
- CartItem *-- "1" Offering
- Offering *-- "1" ProductSpecificationRef
- Offering *-- "0..1" ProductConfiguration
- ShoppingCart *-- "1" Customer
+    Accounts *-- "*" Account
+    Account -- Role
 }
 
-namespace Ordering {
- ProductOrder *-- OrderItem
- OrderItem *-- Product
- Product *-- ProductSpecificationRef
- ProductOrder *-- Party
+namespace Reports {
+    class Reports {
+        reports : Report[]
+    }
+
+    class Report {
+        speaker : Account
+        topic : string
+        description : string
+        fileName : string
+    }
+
+    Reports *-- "*" Report
 }
 
-namespace ProductCatalog {
- ShoppingCart.ProductSpecificationRef ..> ProductSpecification : ref
- Ordering.ProductSpecificationRef ..> ProductSpecification : ref
+namespace Schedule {
+    class Events {
+        events : Event[]
+    }
+
+    class Event {
+        dateBegin : datetime 
+        dateEnd : datetime 
+        report : Report
+    }
+
+    Events *-- "*" Event
 }
 
-namespace CX {
- ShoppingCart.Customer ..> Customer : ref
- Ordering.Party ..> Customer : ref
+namespace Chat {
+    class Messages {
+        messages : Message[]
+    }
+
+    class Message {
+        date : datetime
+        account : Account
+        text : string
+    }
+
+    Messages *-- "*" Message
 }
+
+Event *-- "1" Report
+Report *-- "1" Account
+Message *-- "1" Account
+
 @enduml
 ```

@@ -8,14 +8,36 @@
 
 LAYOUT_WITH_LEGEND()
 
-Person(pbc, "Personal Banking Customer", "A customer of the bank, with personal bank accounts.")
-System(ibs, "Internet Banking System", "Allows customers to view information about their bank accounts, and make payments.")
-System_Ext(es, "E-mail system", "The internal Microsoft Exchange e-mail system.")
-System_Ext(mbs, "Mainframe Banking System", "Stores all of the core banking information about customers, accounts, transactions, etc.")
+Person(guest, "Гость", "Пользователь, пришедший посмотреть конференцию бесплатно.")
+Person(customer, "Клиент", "Пользователь, купивший платный билет.")
+Person(speaker, "Докладчик", "Пользователь, выступающий с докладом.")
 
-Rel(pbc, ibs, "Uses")
-Rel(es, pbc, "Sends e-mails to")
-Rel(ibs, es, "Sends e-mails", "SMTP")
-Rel(ibs, mbs, "Uses")
+System(base, "Базовая система", "Обеспечивает доступ к стандартным системам конференции.")
+System_Ext(accounts, "Система управления пользователями", "Обеспечивает регистрацию, авторизацию и аутентификацию пользователей.")
+System_Ext(view, "Система просмотра трансляции", "Позволяет участникам просматривать онлайн-трансляцию конференции.")
+System_Ext(messages, "Система сообщений", "Позволяет писать сообщения в чат.")
+System_Ext(schedule, "Система календаря", "Отвечает за расписание докладов.")
+
+System(broadcast, "Система вещания конференции", "Обеспечивает вещание докладов конференции и сохранение записей.")
+SystemDb(storage, "Система хранения докладов", "Обеспечивает хранение видеозаписей докладов конференции.")
+
+Rel(guest, base, "Использует")
+Rel(customer, base, "Использует")
+Rel(speaker, base, "Использует")
+
+Rel(base, accounts, "Использует")
+Rel(base, view, "Использует")
+Rel(base, messages, "Использует")
+Rel(base, schedule, "Использует")
+
+Rel(customer, storage, "Читает")
+
+Rel(speaker, broadcast, "Использует")
+
+Rel(broadcast, storage, "Записывает")
+Rel(broadcast, view, "Передаёт")
+
+SHOW_LEGEND()
+
 @enduml
 ```
