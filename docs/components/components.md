@@ -12,45 +12,58 @@
 AddElementTag("microService", $shape=EightSidedShape(), $bgColor="CornflowerBlue", $fontColor="white", $legendText="microservice")
 AddElementTag("storage", $shape=RoundedBoxShape(), $bgColor="lightSkyBlue", $fontColor="white")
 
-Person(customer, "Покупатель", "B2C клиент")
+Person(guest, "Гость", "Пользователь, пришедший посмотреть конференцию бесплатно.")
+Person(customer, "Клиент", "Пользователь, купивший платный билет.")
+Person(speaker, "Докладчик", "Пользователь, выступающий с докладом.")
 
-System_Boundary(c, "MTS Shop Lite") {
-   Container(app, "Клиентское веб-приложение", "html, JavaScript, Angular", "Портал интернет-магазина")
-   Container(offering_service, "Product Offering Service", "Java, Spring Boot", "Сервис управления продуктовым предложением", $tags = "microService")      
-   ContainerDb(offering_db, "Product Catalog", "PostgreSQL", "Хранение продуктовых предложений", $tags = "storage")
-   
-   Container(ordering_service, "Product Ordering Service", "Golang, nginx", "Сервис управления заказом", $tags = "microService")      
-   ContainerDb(ordering_db, "Order Inventory", "MySQL", "Хранение заказов", $tags = "storage")
-    
-   Container(message_bus, "Message Bus", "RabbitMQ", "Транспорт для бизнес-событий")
-   Container(audit_service, "Audit Service", "C#/.NET", "Сервис аудита", $tags = "microService")      
-   Container(audit_store, "Audit Store", "Event Store", "Хранение произошедших события для аудита", $tags = "storage")
-}
+Container(clientFront, "Веб-приложение для посетителей", "html, JavaScript, React", "Фронтенд для клиентов и гостей")
+Container(accounts, "Система управления пользователями", "C#/.NET", "Сервис аутентификации и авторизации", $tags = "microService")
+Container(view, "Система видеотрансляции", "Golang, nginx", "Сервис трансляции онлайн-конференции", $tags = "microService")
+Container(messages, "Система сообщений чата", "Golang, nginx", "Сервис чата", $tags = "microService")
+Container(schedule, "Система календаря", "C#/.NET", "Сервис расписания докладов")
 
-System_Ext(logistics_system, "msLogistix", "Система управления доставкой товаров.")  
+Container(speakerFront, "Веб-приложение для докладчиков", "html, JavaScript, React", "Фронтенд для докладчиков")
+Container(broadcast, "Система записи конференции", "Golang, nginx", "Сервис записи докладов", $tags = "microService")
 
-Lay_R(offering_service, ordering_service)
-Lay_R(offering_service, logistics_system)
-Lay_D(offering_service, audit_service)
+ContainerDb(storageSchedule, "БД календаря", "SQLite", "Хранение информации о расписании докладов", $tags = "storage")
+ContainerDb(storageVideo, "БД докладов", "SQLite + видеофайлы", "Хранение информации о файлах видеозаписей докладов, и самих файлов", $tags = "storage")
+ContainerDb(storageAccounts, "БД пользователей", "MongoDB", "Хранение информации о пользователях", $tags = "storage")
+ContainerDb(storageMessages, "БД чата", "MongoDB", "Хранение сообщений чата", $tags = "storage")
 
-Rel(customer, app, "Оформление заказа", "HTTPS")
-Rel(app, offering_service, "Выбор продуктов для корзины(Продукт):корзина", "JSON, HTTPS")
+Rel(guest, clientFront, "Просмотр трансляции доклада", "JSON, HTTPS")
+Rel(customer, clientFront, "Просмотр трансляции доклада", "JSON, HTTPS")
+Rel(speaker, speakerFront, "Вещание доклада", "JSON, HTTPS")
 
-Rel(offering_service, message_bus, "Отправка заказа(Корзина)", "AMPQ")
-Rel(offering_service, offering_db, "Сохранение продуктового предложения(Продуктовая спецификация)", "JDBC, SQL")
+Rel(clientFront, accounts, "Аутентификация и авторизация пользователя", "JSON, HTTPS")
+Rel(clientFront, messages, "Отправка сообщения в чат (сообщение):статус доставки", "JSON, HTTPS")
+Rel(clientFront, schedule, "Просмотр расписания докладов:расписание", "JSON, HTTPS")
+Rel(view, clientFront, "Поток видеотрансляции", "HTTPS")
 
-Rel(ordering_service, message_bus, "Получение заказа: Корзина", "AMPQ")
-Rel_U(audit_service, message_bus, "Получение события аудита(Событие)", "AMPQ")
+Rel(customer, storageVideo, "Просмотр прошедших докладов(доклад):поток", "SQL, FileSystem")
+Rel(schedule, storageSchedule, "Чтение расписания докладов:расписание", "SQL")
+Rel(accounts, storageAccounts, "Запрос авторизации(аккаунт):статус", "SQL")
+Rel(messages, storageMessages, "Сохранение сообщения(сообщение)", "SQL")
 
-Rel(ordering_service, ordering_db, "Сохранение заказа(Заказ)", "SQL")
-Rel(audit_service, audit_store, "Сохранение события(Событие)")
-Rel(ordering_service, logistics_system, "Доставка(Наряд на доставку):Трекинг", "JSON, HTTP")  
+Rel(speakerFront, broadcast, "Передача видеопотока(поток)", "HTTPS")
+
+Rel(broadcast, storageVideo, "Сохранение видеопотока(поток)", "SQL, FileSystem")
+Rel(broadcast, view, "Передача видеопотока(поток)", "HTTPS")
 
 SHOW_LEGEND()
 @enduml
 ```
 
 ## Список компонентов
-| Компонент             | Роль/назначение                  |
-|:----------------------|:---------------------------------|
-| *Название компонента* | *Описание назначения компонента* |
+| Компонент                           | Роль/назначение                                           |
+|:------------------------------------|:----------------------------------------------------------|
+| *Веб-приложение для посетителей*    | *Интерфейс для взаимодействия с сервисами портала*        |
+| *Веб-приложение для докладчиков*    | *Интерфейс для взаимодействия с сервисами портала*        |
+| *Система управления пользователями* | *Регистрация, аутентификация и авторизация пользователей* |
+| *Система сообщений чата*            | *Доставка сообщений в чат конференции*                    |
+| *Система календаря*                 | *Предоставление информации о расписании докладов*         |
+| *Система видеотрансляции*           | *Сервис для трансляции видеопотока*                       |
+| *Система записи конференции*        | *Запись видеопотока доклада*                              |
+| *БД пользователей*                  | *Хранение данных о пользователях*                         |
+| *БД чата*                           | *Хранение истории чата*                                   |
+| *БД календаря*                      | *Хранение информации о расписании докладов*               |
+| *БД докладов*                       | *Хранение данных о видеофайлах докладов*                  |
