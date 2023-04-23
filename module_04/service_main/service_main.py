@@ -24,14 +24,18 @@ pass
 class Presentation_With_Author(object):
     '''Class Presentation_With_Author'''    
     title = str
+    first_name : str
+    last_name : str
     email = str
     birth_date : str
     date = str
-    def __init__(self, title, email, birth_date, date):        
+    def __init__(self, title, date, author):        
         self.title = title
-        self.email = email
-        self.birth_date = birth_date
         self.date = date
+        self.first_name = author.first_name
+        self.last_name = author.last_name
+        self.email = author.email
+        self.birth_date = author.birth_date
     pass
 pass
 
@@ -74,7 +78,7 @@ async def read_presentation(title: str):
     author = Author(**responseAuthor.json()[0])
 
     #new integation class
-    presentationWithAuthor = Presentation_With_Author(presentation.title, author.email, author.birth_date, presentation.date)
+    presentationWithAuthor = Presentation_With_Author(presentation.title, presentation.date, author)
     
     responseAuthor.close
     
