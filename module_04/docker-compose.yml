@@ -1,4 +1,5 @@
 version: '3.3'
+name: homework4
 
 services:
   service_author:
