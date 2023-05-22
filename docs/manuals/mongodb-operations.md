@@ -70,14 +70,14 @@ db.places.find(
 ```
 
 ## Transactions
-Транзакции обеспечивают согласованность в сложных операциях в нескольких документах./
+Транзакции обеспечивают согласованность в сложных операциях в нескольких документах.
 В MongoDB операции с одним документом являются атомарными.
 При необходимости обеспечения согласованности данных при операциях над несколькими документами или массивами следует использовать транзакции.
 Пример работы с транзакцией:
 ``` js
 var session = db.getMongo().startSession()
 
-session.startTransaction({"readConcern": { "level": "snapshot" }, "writeConcern": { "w": "majority" } })
+session.startTransaction({ "readConcern": { "level": "snapshot" }, "writeConcern": { "w": "majority" } })
 
 var authors = session.getDatabase('literature').getCollection('authors')
 
