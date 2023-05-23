@@ -81,7 +81,7 @@ curl http://127.0.0.1:8083/presentationsAndAuthor/First%20Presentation
    2. Полуоткрытие и размыкание
    3. Полуоткрытие и замыкание
 Обратите внимание на задержки обработки вызовов до срабатывания Выключателя.
-Сохраните логи с последовательностью closed -> open -> half-open -> closed -> half-open -> open и пришлите для проверки.
+Сохраните логи с последовательностью closed -> open -> half-open -> open -> half-open -> closed и пришлите для проверки.
 
 ## Задание со звёздочкой
 Попробуйте реализовать Circuit Breaker сами внутри сервиса "presentationsAndAuthor" (service_main), не импортируя circuitbreaker.py (при желании код можно копировать).

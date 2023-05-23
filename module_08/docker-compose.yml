@@ -1,4 +1,5 @@
 version: '3.3'
+name: homework8
 
 services:
   service_author:
@@ -35,7 +36,6 @@ services:
       - 8083:8083
 
 
-      
 networks:
   arch-network:
     driver: "bridge"
